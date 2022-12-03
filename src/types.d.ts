@@ -16,3 +16,10 @@ export type BoardRowType = {
 };
 
 export type BoardType = BoardRowType[];
+
+export type Player = {
+  name: string;
+  cards: CardType[];
+  money: number;
+  isComputer: boolean;
+};

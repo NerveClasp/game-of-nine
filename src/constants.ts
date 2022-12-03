@@ -27,3 +27,4 @@ export const SORT_ORDER_KINDS = CARD_KINDS.reduce((acc, val, i) => {
 export const FIRST_CARD_VALUE: CardValue = '9';
 export const FIRST_CARD: CardType = { kind: '❤', value: '9' };
 export const STARTING_MONEY = 10;
+export const MIN_ACTIVE_PLAYERS = 3;

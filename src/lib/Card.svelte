@@ -26,7 +26,7 @@
     --card-bg: antiquewhite;
   }
   .card {
-    --card-height: calc(64vh / var(--rows-of-cards, 4));
+    --card-height: calc(58vh / var(--rows-of-cards, 4));
     --card-width: calc(var(--card-height, 90) * 0.66);
     --abs-padding: calc(var(--card-width) / 8);
 
