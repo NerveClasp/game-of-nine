@@ -4,17 +4,24 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "pnpm run smui-theme -- --output-style expanded",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "prettier": "npx prettier --write ./src/**/*.{svelte,ts}",
     "tauri": "tauri",
-    "tauri-dev": "pnpm run tauri dev",
-    "smui-theme": "smui-theme compile src/style/smui.css -i src/theme"
+    "tauri-dev": "pnpm run tauri dev"
   },
   "devDependencies": {
+    "@material/animation": "^14.0.0",
+    "@material/base": "^14.0.0",
+    "@material/card": "^14.0.0",
+    "@material/dom": "^14.0.0",
+    "@material/elevation": "^14.0.0",
+    "@material/ripple": "^14.0.0",
+    "@material/rtl": "^14.0.0",
+    "@material/shape": "^14.0.0",
+    "@material/theme": "^14.0.0",
     "@smui-extra/badge": "6",
     "@smui/button": "6",
     "@smui/card": "6",
