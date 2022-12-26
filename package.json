@@ -41,9 +41,10 @@
     "@smui/textfield": "6",
     "@smui/tooltip": "6",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
-    "@tauri-apps/cli": "^1.0.3",
+    "@tauri-apps/cli": "^1.2.2",
     "@tsconfig/svelte": "^2.0.1",
     "@types/node": "^18.0.3",
+    "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
     "eslint": "^8.19.0",
@@ -59,7 +60,8 @@
     "vite": "^2.9.9"
   },
   "dependencies": {
-    "@tauri-apps/api": "^1.0.2",
-    "normalize.css": "^8.0.1"
+    "@tauri-apps/api": "^1.2.0",
+    "normalize.css": "^8.0.1",
+    "uuid": "^9.0.0"
   }
 }

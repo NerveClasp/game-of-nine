@@ -1,14 +1,41 @@
 <script lang="ts">
+  // import { onMount } from 'svelte';
   import Textfield, { HelperLine } from '@smui/textfield';
   import Switch from '@smui/switch';
   import Button from '@smui/button';
   import { STARTING_MONEY } from './constants';
   import type { Player } from './types';
   import Game from './lib/Game.svelte';
+  // import { invoke } from '@tauri-apps/api';
+  // import { listen, emit, Event as TauriEvent } from '@tauri-apps/api/event';
 
   let gameOn = false;
   let startingMoney = STARTING_MONEY;
   let allowNegative = false;
+  // let counter = 0;
+  //
+  // onMount(() => {
+  //   listen('backend-ping', (e: TauriEvent<string>) => {
+  //     console.log('backend-ping sends:', e);
+  //   });
+  //   emit('add-player', { name: 'Romka', is_computer: false });
+  // });
+  //
+  // async function playAround() {
+  //   console.log('YO!');
+  //   const resp = await invoke('hello_world');
+  //   console.log('resp', resp);
+  // }
+  //
+  // async function count() {
+  //   const resp = (await invoke('counter_inc', { num: 1 })) as string;
+  //   try {
+  //     const newCounter = parseInt(resp);
+  //     counter = newCounter;
+  //   } catch (err) {
+  //     console.error('Oops, failed to increase counter:', err);
+  //   }
+  // }
 
   $: moneyError = startingMoney < 1;
   $: canCreate =

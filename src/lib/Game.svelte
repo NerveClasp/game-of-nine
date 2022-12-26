@@ -108,6 +108,7 @@
         activePlayers[i].cards[firstCardIdx].playable = true;
       }
     });
+    if (activePlayers[curPlayerIdx].isComputer) makeAMove(FIRST_CARD);
   };
 
   onMount(() => {
@@ -145,6 +146,11 @@
   };
 
   const makeAMove = (card?: CardType) => {
+    console.log(
+      `Player: ${players[curPlayerIdx].name} - ${
+        card ? `${card.kind}${card.value}` : 'payed'
+      }`
+    );
     if (!card) {
       activePlayers[curPlayerIdx].cards = activePlayers[curPlayerIdx].cards.map(
         (c) => ({
@@ -211,7 +217,9 @@
 
     if (activePlayers[curPlayerIdx].cards.length === 0) {
       activePlayers[curPlayerIdx].money += pot;
+      activePlayers = [...activePlayers];
       pot = 0;
+      console.log('===============');
       reset();
     } else {
       nextPlayer();
@@ -233,6 +241,7 @@
   const endGame = () => (gameOn = false);
 
   const getWinners = () => {
+    console.log(JSON.stringify(activePlayers, null, 2));
     const winners: Player[] = activePlayers.reduce((acc, player) => {
       if (!acc.length || acc[0].money < player.money) return [player];
       if (acc[0].money === player.money) acc.push(player);
@@ -243,14 +252,6 @@
     return `${label} ${winners.map(({ name }) => name).join(', ')}`;
   };
 </script>
-
-<Dialog open={showWinner} on:SMUIDialog:closed={endGame}>
-  {#if showWinner}
-    <Title>Game finished!</Title>
-    <Content>{getWinners()}</Content>
-    <Actions><Button on:click={endGame}>End Game</Button></Actions>
-  {/if}
-</Dialog>
 
 <section class="heading">
   <h2 class="pot">Pot: {pot}</h2>
@@ -306,6 +307,13 @@
       {/if}
     </div>
   {/each}
+  {#if showWinner}
+    <Dialog bind:open={showWinner} on:SMUIDialog:closed={endGame}>
+      <Title>Game finished!</Title>
+      <Content>{getWinners()}</Content>
+      <Actions><Button on:click={endGame}>End Game</Button></Actions>
+    </Dialog>
+  {/if}
 </section>
 
 <style>
@@ -324,6 +332,10 @@
   * :global(.show-btn) {
     background-color: goldenrod;
     color: #000;
+  }
+
+  * :global(.mdc-dialog-scroll-lock) {
+    overflow: auto !important;
   }
 
   h2,
@@ -351,6 +363,7 @@
     display: flex;
     width: 100%;
     align-items: center;
+    justify-content: center;
   }
 
   .current {
