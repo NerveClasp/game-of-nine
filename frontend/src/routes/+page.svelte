@@ -7,10 +7,11 @@
 
 	let playerCreated = false;
 	let loading = false; // @TODO handle loading
-	let player: NewPlayer = {
+	let newPlayer: NewPlayer = {
 		name: '',
 		isComputer: false
 	};
+	let player: Player;
 	let players: Player[] = [];
 
 	onMount(async () => {
@@ -24,7 +25,7 @@
 			const [existing] = players.filter((p: Player) => p.playerUid === playerUid);
 			console.log('existing', existing);
 			if (existing) {
-				player = existing;
+				newPlayer = existing;
 				playerCreated = true;
 			}
 			console.log('stop loading');
@@ -35,8 +36,8 @@
 	const handleAddPlayer = async () => {
 		const clientUid = uuid();
 		const playerUid = uuid();
-		const newPlayer: Player = {
-			...player,
+		const p: Player = {
+			...newPlayer,
 			clientUid,
 			playerUid
 		};
@@ -46,13 +47,14 @@
 				'Content-Type': 'application/json'
 				// 'Content-Type': 'application/x-www-form-urlencoded',
 			},
-			body: JSON.stringify(newPlayer)
+			body: JSON.stringify(p)
 		});
 		// @TODO: handle error
 		if (addUser.status !== 200) return;
 		playerCreated = true;
 		localStorage.setItem('clientUid', clientUid);
 		localStorage.setItem('playerUid', playerUid);
+		player = p;
 	};
 </script>
 
@@ -64,9 +66,9 @@
 <section>
 	<h1>Game of Nine</h1>
 	{#if playerCreated}
-		<Dashboard />
+		<Dashboard bind:player />
 	{:else}
-		<CreateUser bind:player {handleAddPlayer} />
+		<CreateUser bind:player={newPlayer} {handleAddPlayer} />
 	{/if}
 </section>
 

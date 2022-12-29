@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/gorilla/websocket"
+	"golang.org/x/exp/slices"
 )
 
 type Card struct {
@@ -26,6 +27,11 @@ type Game struct {
 	GameUid string   `json:"gameUid"`
 	Players []Player `json:"players"`
 }
+
+type GetGame struct {
+	GameUid string `json:"gameUid"`
+}
+
 type NewGameMessage struct {
 	Type    string   `json:"type"`
 	GameUid string   `json:"gameUid"`
@@ -93,6 +99,24 @@ func getGames(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(games)
 }
 
+func getGame(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*") // for CORS
+	var getGame GetGame
+	err := json.NewDecoder(r.Body).Decode(&getGame)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	gameIdx := slices.IndexFunc(games, func(g Game) bool { return g.GameUid == getGame.GameUid })
+	if gameIdx == -1 {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(games[gameIdx])
+}
+
 func addPlayer(w http.ResponseWriter, r *http.Request) {
 	player := Player{}
 	err := json.NewDecoder(r.Body).Decode(&player)
@@ -101,6 +125,17 @@ func addPlayer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	players = append(players, player)
+	w.WriteHeader(http.StatusOK)
+}
+
+func createGame(w http.ResponseWriter, r *http.Request) {
+	game := Game{}
+	err := json.NewDecoder(r.Body).Decode(&game)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	games = append(games, game)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -129,6 +164,8 @@ func main() {
 	http.Handle("/add-player", http.HandlerFunc(addPlayer))
 	http.Handle("/get-players", http.HandlerFunc(getPlayers))
 	http.Handle("/get-games", http.HandlerFunc(getGames))
+	http.Handle("/get-game", http.HandlerFunc(getGame))
+	http.Handle("/create-game", http.HandlerFunc(createGame))
 	http.HandleFunc("/ws", socket)
 	http.Handle("/", http.FileServer(http.Dir("static")))
 	log.Fatal(http.ListenAndServe(":7331", nil))

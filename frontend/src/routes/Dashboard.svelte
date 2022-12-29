@@ -1,10 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Player } from './types';
+	import { goto } from '$app/navigation';
+	import { v4 as uuid } from 'uuid';
+	import Button from '@smui/button/src/Button.svelte';
+	import type { Player, Game } from './types';
 
-	// export let player: Player;
+	export let player: Player;
+
 	let messages: string[] = [];
 	let players: Player[] = [];
+	let games: Game[] = [];
 
 	let socket: WebSocket | null = null;
 
@@ -26,14 +31,38 @@
 
 			// Listen for messages
 			socket.onmessage = (event) => {
+				console.log('event', event);
 				messages = [...messages, event.data];
 			};
 		}
 
 		players = await fetch('/get-players').then((r) => r.json());
 		console.log('players', players);
+		const existingGames = await fetch('/get-games')
+			.then((r) => r.json())
+			.catch((err) => console.log('getting games err:', err));
+		if (Array.isArray(existingGames)) games = existingGames;
+		console.log('games', games);
 		sendMessage('Hello from FE');
 	});
+
+	const handleCreateGame = async () => {
+		const gameUid = uuid();
+		const newGame: Game = {
+			players: [player],
+			gameUid
+		};
+		const createGame = await fetch('/create-game', {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			headers: {
+				'Content-Type': 'application/json'
+				// 'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: JSON.stringify(newGame)
+		});
+		if (createGame.status !== 200) return; // @TODO handle error
+		await goto(`/game/${gameUid}`);
+	};
 </script>
 
 <h1>Dashboard</h1>
@@ -45,3 +74,8 @@
 {#each players as player}
 	<div>{player.name}</div>
 {/each}
+<h2>Games:</h2>
+{#each games as game}
+	<div>{game.gameUid}</div>
+{/each}
+<Button on:click={handleCreateGame}>Create Game</Button>

@@ -10,7 +10,8 @@ const config = {
 	kit: {
 		adapter: adapter({
 			pages: '../static',
-			assets: '../static'
+			assets: '../static',
+			strict: false
 		})
 	}
 };
