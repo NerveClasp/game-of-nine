@@ -2,8 +2,9 @@
 	import { onMount } from 'svelte';
 	import CreateUser from './CreateUser.svelte';
 	import { v4 as uuid } from 'uuid';
-	import type { NewPlayer, Player } from './types';
+	import type { Game, NewPlayer, Player } from './types';
 	import Dashboard from './Dashboard.svelte';
+	import GamePage from './GamePage.svelte';
 
 	let playerCreated = false;
 	let loading = false; // @TODO handle loading
@@ -13,6 +14,7 @@
 	};
 	let player: Player;
 	let players: Player[] = [];
+	let game: Game | null = null;
 
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
@@ -22,10 +24,10 @@
 			if (!playerUid) return;
 			players = await fetch('/get-players').then((r) => r.json());
 			console.log('players', players);
-			const [existing] = players.filter((p: Player) => p.playerUid === playerUid);
+			const [existing] = players?.filter((p: Player) => p.playerUid === playerUid) ?? [];
 			console.log('existing', existing);
 			if (existing) {
-				newPlayer = existing;
+				player = existing;
 				playerCreated = true;
 			}
 			console.log('stop loading');
@@ -66,7 +68,11 @@
 <section>
 	<h1>Game of Nine</h1>
 	{#if playerCreated}
-		<Dashboard bind:player />
+		{#if !!game}
+			<GamePage bind:game />
+		{:else}
+			<Dashboard bind:player bind:game />
+		{/if}
 	{:else}
 		<CreateUser bind:player={newPlayer} {handleAddPlayer} />
 	{/if}

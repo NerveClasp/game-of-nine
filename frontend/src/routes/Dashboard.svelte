@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 	import { v4 as uuid } from 'uuid';
 	import Button from '@smui/button/src/Button.svelte';
 	import type { Player, Game } from './types';
 
 	export let player: Player;
+	export let game: Game | null = null;
 
 	let messages: string[] = [];
 	let players: Player[] = [];
 	let games: Game[] = [];
+
+	console.log('player', player);
 
 	let socket: WebSocket | null = null;
 
@@ -61,7 +63,7 @@
 			body: JSON.stringify(newGame)
 		});
 		if (createGame.status !== 200) return; // @TODO handle error
-		await goto(`/game/${gameUid}`);
+		game = newGame;
 	};
 </script>
 
