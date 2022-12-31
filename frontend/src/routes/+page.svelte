@@ -2,9 +2,10 @@
 	import { onMount } from 'svelte';
 	import CreateUser from './CreateUser.svelte';
 	import { v4 as uuid } from 'uuid';
-	import type { Game, NewPlayer, Player } from './types';
+	import type { Game, IncomingMessage, NewPlayer, Player } from './types';
 	import Dashboard from './Dashboard.svelte';
 	import GamePage from './GamePage.svelte';
+	import socket, { clientUid as clientUidStore } from './socket';
 
 	let playerCreated = false;
 	let loading = false; // @TODO handle loading
@@ -20,17 +21,14 @@
 		if (typeof window !== 'undefined') {
 			loading = true;
 			const playerUid = localStorage.getItem('playerUid');
-			console.log('playerUid', playerUid);
 			if (!playerUid) return;
+
 			players = await fetch('/get-players').then((r) => r.json());
-			console.log('players', players);
 			const [existing] = players?.filter((p: Player) => p.playerUid === playerUid) ?? [];
-			console.log('existing', existing);
 			if (existing) {
 				player = existing;
 				playerCreated = true;
 			}
-			console.log('stop loading');
 			loading = false;
 		}
 	});
@@ -43,20 +41,18 @@
 			clientUid,
 			playerUid
 		};
-		const addUser = await fetch('/add-player', {
-			method: 'POST', // *GET, POST, PUT, DELETE, etc.
-			headers: {
-				'Content-Type': 'application/json'
-				// 'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			body: JSON.stringify(p)
-		});
+		socket.sendMessage({ type: 'createPlayer' }, p);
 		// @TODO: handle error
-		if (addUser.status !== 200) return;
 		playerCreated = true;
 		localStorage.setItem('clientUid', clientUid);
 		localStorage.setItem('playerUid', playerUid);
+		$clientUidStore = clientUid;
 		player = p;
+	};
+
+	const handleLeaveGame = async (g: Game) => {
+		socket.sendMessage({ type: 'leaveGame', gameUid: g.gameUid }, player);
+		game = null;
 	};
 </script>
 
@@ -69,7 +65,7 @@
 	<h1>Game of Nine</h1>
 	{#if playerCreated}
 		{#if !!game}
-			<GamePage bind:game />
+			<GamePage bind:game {handleLeaveGame} />
 		{:else}
 			<Dashboard bind:player bind:game />
 		{/if}
