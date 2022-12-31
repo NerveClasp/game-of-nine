@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import CreateUser from './CreateUser.svelte';
 	import { v4 as uuid } from 'uuid';
-	import type { Game, IncomingMessage, NewPlayer, Player } from './types';
+	import type { Game, NewPlayer, Player } from './types';
 	import Dashboard from './Dashboard.svelte';
 	import GamePage from './GamePage.svelte';
 	import socket, { clientUid as clientUidStore } from './socket';
@@ -26,9 +26,22 @@
 			players = await fetch('/get-players').then((r) => r.json());
 			const [existing] = players?.filter((p: Player) => p.playerUid === playerUid) ?? [];
 			if (existing) {
+				const gameUid = localStorage.getItem('gameUid');
+				console.log('gameUid', gameUid);
+				if (gameUid) {
+					const existingGames = await fetch('/get-games')
+						.then((r) => r.json())
+						.catch((err) => console.log('getting games err:', err));
+					if (existingGames && Array.isArray(existingGames)) {
+						console.log('existingGames', existingGames);
+						const [foundGame] = existingGames.filter((g) => g.gameUid === gameUid);
+						if (foundGame) game = foundGame;
+					}
+				}
 				player = existing;
 				playerCreated = true;
 			}
+
 			loading = false;
 		}
 	});
@@ -54,6 +67,8 @@
 		socket.sendMessage({ type: 'leaveGame', gameUid: g.gameUid }, player);
 		game = null;
 	};
+
+	const handleBackToLobby = () => (game = null);
 </script>
 
 <svelte:head>
@@ -65,7 +80,7 @@
 	<h1>Game of Nine</h1>
 	{#if playerCreated}
 		{#if !!game}
-			<GamePage bind:game {handleLeaveGame} />
+			<GamePage bind:game {handleLeaveGame} {handleBackToLobby} />
 		{:else}
 			<Dashboard bind:player bind:game />
 		{/if}

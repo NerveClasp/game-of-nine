@@ -7,6 +7,8 @@ export const chatMessages: Writable<ChatMessage[]> = writable([]);
 
 export const clientUid = writable('');
 
+export const messageLog: Writable<IncomingMessage[]> = writable([]);
+
 const socket =
 	typeof window !== 'undefined'
 		? new WebSocket(
@@ -27,6 +29,7 @@ socket.onmessage = (e: MessageEvent) => {
 			if (message?.type !== 'chat') return messages;
 			return [...messages, message];
 		});
+		messageLog.update((m) => [...m, message]);
 		messageStore.set(message);
 	} catch (error) {
 		console.log('Whoa, got something strange from socket', error);
