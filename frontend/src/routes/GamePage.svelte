@@ -3,6 +3,8 @@
 	import type { Game } from 'src/routes/types';
 	import Button from '@smui/button';
 	import GameLobby from './GameLobby.svelte';
+	import GameBoard from './GameBoard.svelte';
+	import socket from './socket';
 
 	export let game: Game;
 	export let handleLeaveGame: (game: Game) => void;
@@ -18,6 +20,12 @@
 		} catch (err) {
 			console.log('Error fetching game:', err);
 		}
+		socket.subscribe((m) => {
+			if (!m) return;
+			if (m.type === 'gameStarted' && m.game.gameUid === game.gameUid) {
+				game = m.game;
+			}
+		});
 	});
 
 	onDestroy(() => {
@@ -33,5 +41,5 @@
 {#if !game.started}
 	<GameLobby bind:game />
 {:else}
-	<div>{JSON.stringify(game)}</div>
+	<GameBoard bind:game />
 {/if}

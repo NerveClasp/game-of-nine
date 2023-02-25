@@ -8,6 +8,7 @@ export type Player = NewPlayer & {
 	playerUid: string;
 	cards?: CardType[];
 	cardsNumber?: number;
+	yourTurn?: boolean;
 };
 
 export type CardKind = '❤' | '♦' | '♣' | '♠';
@@ -40,13 +41,17 @@ type PlayerMessage = { type: 'createPlayer'; gameUid?: string };
 type MoveMessage = { type: 'move'; card?: CardType; gameUid: string };
 type LobbyMessage = { type: 'joinLobby' | 'leaveLobby'; gameUid?: string };
 type CreateGameMessage = { type: 'createGame'; game: Game; gameUid?: string };
+type StartGameMessage = { type: 'startGame'; gameUid: string };
+type GameStartedMessage = { type: 'gameStarted'; game: Game; gameUid?: string };
 type GameMessage = { type: 'joinGame' | 'leaveGame' | 'watchGame'; gameUid: string };
 export type ChatMessage = { type: 'chat'; message: string; player: Player; gameUid?: string };
 
 export type Message =
 	| PlayerMessage
 	| LobbyMessage
-	| CreateGame
+	| CreateGameMessage
+	| StartGameMessage
+	| GameStartedMessage
 	| GameMessage
 	| MoveMessage
 	| ChatMessage;

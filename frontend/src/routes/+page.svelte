@@ -5,8 +5,9 @@
 	import type { Game, NewPlayer, Player } from './types';
 	import Dashboard from './Dashboard.svelte';
 	import GamePage from './GamePage.svelte';
-	import socket, { clientUid as clientUidStore } from './socket';
+	import socket, { clientUid as clientUidStore, player as playerStore, initSocket } from './socket';
 
+	let clientUid = '';
 	let playerCreated = false;
 	let loading = false; // @TODO handle loading
 	let newPlayer: NewPlayer = {
@@ -20,6 +21,13 @@
 	onMount(async () => {
 		if (typeof window !== 'undefined') {
 			loading = true;
+
+			const clientUidStored = localStorage.getItem('clientUid');
+			clientUid = clientUidStored ?? uuid();
+			if (!clientUidStored) localStorage.setItem('clientUid', clientUid);
+
+			initSocket(clientUid);
+
 			const playerUid = localStorage.getItem('playerUid');
 			if (!playerUid) return;
 
@@ -38,7 +46,8 @@
 						if (foundGame) game = foundGame;
 					}
 				}
-				player = existing;
+				player = { ...existing, clientUid };
+				$playerStore = player;
 				playerCreated = true;
 			}
 
@@ -47,7 +56,6 @@
 	});
 
 	const handleAddPlayer = async () => {
-		const clientUid = uuid();
 		const playerUid = uuid();
 		const p: Player = {
 			...newPlayer,
@@ -57,10 +65,10 @@
 		socket.sendMessage({ type: 'createPlayer' }, p);
 		// @TODO: handle error
 		playerCreated = true;
-		localStorage.setItem('clientUid', clientUid);
 		localStorage.setItem('playerUid', playerUid);
 		$clientUidStore = clientUid;
 		player = p;
+		$playerStore = player;
 	};
 
 	const handleLeaveGame = async (g: Game) => {

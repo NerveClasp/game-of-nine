@@ -2,50 +2,15 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
+	"math/rand"
 	"mime"
 	"net/http"
+	"time"
 
 	"golang.org/x/exp/slices"
 )
-
-type Card struct {
-	Kind  string `json:"kind"`
-	Value string `json:"value"`
-}
-
-type Player struct {
-	Name       string `json:"name"`
-	IsComputer bool   `json:"isComputer"`
-	ClientUid  string `json:"clientUid"`
-	PlayerUid  string `json:"playerUid"`
-}
-
-type PlayerMessage struct {
-	Type   string `json:"type"`
-	Player Player `json:"player"`
-}
-
-type Game struct {
-	GameUid string   `json:"gameUid"`
-	Players []Player `json:"players"`
-	Started bool     `json:"started,omitempty"`
-}
-
-type NewGameMessage struct {
-	Type string `json:"type"`
-	Game Game   `json:"game"`
-}
-
-type GetGame struct {
-	GameUid string `json:"gameUid"`
-}
-
-type JoinOrLeaveGameMessage struct {
-	Type    string `json:"type"`
-	GameUid string `json:"gameUid"`
-	Player  Player `json:"player"`
-}
 
 var (
 	players []Player
@@ -60,6 +25,27 @@ var (
 	MIDDLE_VALUE string    = "9"
 	TAIL_ORDER   [5]string = [5]string{"10", "J", "Q", "K", "A"}
 )
+
+var deckOfCards [len(cardValues) * len(cardKinds)]Card
+
+func makeDeck() [36]Card {
+	cardIndex := 0
+	var suffledDeck [len(cardValues) * len(cardKinds)]Card
+	for _, kind := range cardKinds {
+		for _, value := range cardValues {
+			deckOfCards[cardIndex] = Card{Kind: kind, Value: value}
+			cardIndex++
+		}
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	randIndexes := rand.Perm(len(deckOfCards))
+	fmt.Printf("%+v\n", randIndexes)
+	for k := range deckOfCards {
+		suffledDeck[k] = deckOfCards[randIndexes[k]]
+	}
+	return suffledDeck
+}
 
 func getGames(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -98,17 +84,6 @@ func addPlayer(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func createGameApi(w http.ResponseWriter, r *http.Request) {
-	game := Game{}
-	err := json.NewDecoder(r.Body).Decode(&game)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	games = append(games, game)
-	w.WriteHeader(http.StatusOK)
-}
-
 func getPlayers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*") // for CORS
@@ -132,7 +107,6 @@ func main() {
 	http.Handle("/get-players", http.HandlerFunc(getPlayers))
 	http.Handle("/get-games", http.HandlerFunc(getGames))
 	http.Handle("/get-game", http.HandlerFunc(getGame))
-	http.Handle("/create-game", http.HandlerFunc(createGameApi))
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWs(hub, w, r)
 	})
