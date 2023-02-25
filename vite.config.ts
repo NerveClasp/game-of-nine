@@ -1,10 +1,14 @@
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { sveltekit } from '@sveltejs/kit/vite';
+import type { UserConfig } from 'vite';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [svelte()],
-  server: {
-    port: 6969
-  }
-})
+const config: UserConfig = {
+	plugins: [sveltekit()],
+	// test: {
+	// 	include: ['src/**/*.{test,spec}.{js,ts}']
+	// },
+	server: {
+		port: 7331
+	}
+};
+
+export default config;

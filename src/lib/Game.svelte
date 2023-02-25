@@ -11,12 +11,12 @@
     HEAD_ORDER,
     TAIL_ORDER,
     MIN_ACTIVE_PLAYERS,
-  } from '../constants';
+  } from './constants';
 
-  import type { Player, CardType, BoardType } from '../types';
-  import BoardRow from '../lib/BoardRow.svelte';
-  import { rand, sortHand } from '../utils';
-  import { play } from '../ai';
+  import type { Player, CardType, BoardType } from './types';
+  import BoardRow from './BoardRow.svelte';
+  import { rand, sortHand } from './utils';
+  import { play } from './ai';
 
   export let players: Player[] = [];
   export let gameOn = false;
@@ -72,7 +72,7 @@
     for (let i = 0; i < deckLength; i++) {
       const playerIndex = i % activePlayers.length;
       const card = deck.pop();
-      activePlayers[playerIndex].cards.push(card);
+      if (card) activePlayers[playerIndex].cards.push(card);
     }
     activePlayers = activePlayers.map((p) => {
       p.cards = sortHand(p.cards);
@@ -119,19 +119,22 @@
   const nextPlayer = () => {
     toggleCards(false);
     curPlayerIdx = (curPlayerIdx + 1) % activePlayers.length;
-    const playableCards = board.reduce((acc, row) => {
-      if (row.first.playable) {
-        acc[keyFromCard(row.first)] = true;
+    const playableCards = board.reduce<{ [key: string]: boolean }>(
+      (acc, row) => {
+        if (row.first.playable) {
+          acc[keyFromCard(row.first)] = true;
+          return acc;
+        }
+        row.head.forEach((card) => {
+          if (card.playable) acc[keyFromCard(card)] = true;
+        });
+        row.tail.forEach((card) => {
+          if (card.playable) acc[keyFromCard(card)] = true;
+        });
         return acc;
-      }
-      row.head.forEach((card) => {
-        if (card.playable) acc[keyFromCard(card)] = true;
-      });
-      row.tail.forEach((card) => {
-        if (card.playable) acc[keyFromCard(card)] = true;
-      });
-      return acc;
-    }, {});
+      },
+      {}
+    );
 
     activePlayers[curPlayerIdx].cards = activePlayers[curPlayerIdx].cards.map(
       (card) => {
@@ -242,11 +245,11 @@
 
   const getWinners = () => {
     console.log(JSON.stringify(activePlayers, null, 2));
-    const winners: Player[] = activePlayers.reduce((acc, player) => {
+    const winners: Player[] = activePlayers.reduce<Player[]>((acc, player) => {
       if (!acc.length || acc[0].money < player.money) return [player];
       if (acc[0].money === player.money) acc.push(player);
 
-      return acc as Player[];
+      return acc;
     }, []);
     const label = `Winner${winners.length > 1 ? 's' : ''}:`;
     return `${label} ${winners.map(({ name }) => name).join(', ')}`;
@@ -262,7 +265,7 @@
     <BoardRow {row} />
   {/each}
 </section>
-<h3>activePlayers:</h3>
+<h3>Active Players:</h3>
 <section class="players">
   {#each activePlayers as { name, money, cards }, idx}
     <div class="cards-row">
@@ -274,8 +277,10 @@
           <Button
             class="side-btn show-btn"
             variant="raised"
-            on:click={() => toggleCards(true)}>Show</Button
+            on:click={() => toggleCards(true)}
           >
+            Show
+          </Button>
           {#each cards as card}
             <Card
               {card}
@@ -292,8 +297,10 @@
             class="side-btn"
             variant="raised"
             color="secondary"
-            on:click={() => makeAMove()}>Pay $</Button
+            on:click={() => makeAMove()}
           >
+            Pay $
+          </Button>
         </div>
       {:else}
         <span class="inactive">
