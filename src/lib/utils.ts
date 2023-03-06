@@ -4,7 +4,7 @@ import type { CardType } from './types';
 export const rand = (max = 1) => Math.floor((Math.random() * 100) % max);
 
 export const sortHand = (cards: CardType[]): CardType[] => {
-  const byKind: Array<Array<CardType>> = cards.reduce(
+  const byKind = cards.reduce<Array<Array<CardType>>>(
     (acc, card) => {
       const kindOrder = SORT_ORDER_KINDS[card.kind];
       acc[kindOrder].push(card);

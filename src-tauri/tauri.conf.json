@@ -3,7 +3,7 @@
   "build": {
     "beforeBuildCommand": "pnpm build",
     "beforeDevCommand": "pnpm dev",
-    "devPath": "http://localhost:6969",
+    "devPath": "http://localhost:7331",
     "distDir": "../dist"
   },
   "package": {

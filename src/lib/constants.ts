@@ -11,18 +11,24 @@ export const CARD_VALUES: CardValue[] = [
   'K',
   'A',
 ];
-export const SORT_ORDER_VALUES = CARD_VALUES.reduce((acc, val, i) => {
-  acc[val] = i;
-  return acc;
-}, {});
+export const SORT_ORDER_VALUES = CARD_VALUES.reduce<{ [key: string]: number }>(
+  (acc, val, i) => {
+    acc[val] = i;
+    return acc;
+  },
+  {}
+);
 
 export const HEAD_ORDER: CardValue[] = ['8', '7', '6'];
 export const TAIL_ORDER: CardValue[] = ['10', 'J', 'Q', 'K', 'A'];
 export const CARD_KINDS: CardKind[] = ['❤', '♠', '♦', '♣'];
-export const SORT_ORDER_KINDS = CARD_KINDS.reduce((acc, val, i) => {
-  acc[val] = i;
-  return acc;
-}, {});
+export const SORT_ORDER_KINDS = CARD_KINDS.reduce<{ [key: string]: number }>(
+  (acc, val, i) => {
+    acc[val] = i;
+    return acc;
+  },
+  {}
+);
 
 export const FIRST_CARD_VALUE: CardValue = '9';
 export const FIRST_CARD: CardType = { kind: '❤', value: '9' };
