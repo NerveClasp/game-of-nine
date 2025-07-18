@@ -181,33 +181,23 @@
         row.first.inactive = false;
         row.head[0].playable = true;
         row.tail[0].playable = true;
-      } else if (valueIsHead) {
-        let found = false;
-        for (let i = 0; i < row.head.length; i++) {
-          if (found) {
-            row.head[i].playable = true;
-            break;
-          }
-          if (row.head[i].playable) {
-            row.head[i].playable = false;
-            row.head[i].inactive = false;
-            found = true;
-          }
-        }
       } else {
+        const headOrTail = valueIsHead ? 'head' : 'tail';
         let found = false;
-        for (let i = 0; i < row.tail.length; i++) {
+
+        for (let i = 0; i < row[headOrTail].length; i++) {
           if (found) {
-            row.tail[i].playable = true;
+            row[headOrTail][i].playable = true;
             break;
           }
-          if (row.tail[i].playable) {
-            row.tail[i].playable = false;
-            row.tail[i].inactive = false;
+          if (row[headOrTail][i].playable) {
+            row[headOrTail][i].playable = false;
+            row[headOrTail][i].inactive = false;
             found = true;
           }
         }
       }
+
       return row;
     });
 
@@ -215,7 +205,8 @@
       .filter((c) => !(c.kind === kind && c.value === value))
       .map((c) => ({ ...c, playable: false }));
 
-    if (activePlayers[curPlayerIdx].cards.length === 0) {
+    const playerWon = activePlayers[curPlayerIdx].cards.length === 0;
+    if (playerWon) {
       activePlayers[curPlayerIdx].money += pot;
       activePlayers = [...activePlayers];
       pot = 0;
@@ -274,6 +265,7 @@
           <Button
             class="side-btn show-btn"
             variant="raised"
+            disabled={curVisible}
             on:click={() => toggleCards(true)}>Show</Button
           >
           {#each cards as card}
@@ -293,6 +285,7 @@
             class="side-btn"
             variant="raised"
             color="secondary"
+            disabled={!curVisible}
             on:click={() => makeAMove()}>Pay $</Button
           >
         </div>
