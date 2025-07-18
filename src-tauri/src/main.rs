@@ -3,10 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use std::{
-    sync::{Arc, Mutex},
-    time::Duration,
-};
+use std::sync::{Arc, Mutex};
 
 use tauri::{Manager, State};
 
