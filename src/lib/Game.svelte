@@ -20,7 +20,7 @@
 
   export let players: Player[] = [];
   export let gameOn = false;
-  export let allowNegative = false;
+  export let endlessMode = false;
 
   let activePlayers = players;
 
@@ -83,14 +83,14 @@
   const reset = () => {
     toggleCards(false);
     resetBoard();
-    if (!allowNegative) {
+    if (!endlessMode) {
       activePlayers = activePlayers.filter(({ money }) => money > 0);
     }
     const gameEnded =
       activePlayers.reduce((acc, { money }) => {
         if (money > 0) acc += 1;
         return acc;
-      }, 0) < (allowNegative ? 2 : MIN_ACTIVE_PLAYERS);
+      }, 0) < (endlessMode ? 2 : MIN_ACTIVE_PLAYERS);
     if (gameEnded) {
       showWinner = true;
       return;
@@ -262,7 +262,7 @@
     <BoardRow {row} />
   {/each}
 </section>
-<h3>activePlayers:</h3>
+<h3>Players:</h3>
 <section class="players">
   {#each activePlayers as { name, money, cards }, idx}
     <div class="cards-row">
@@ -286,6 +286,7 @@
               }}
               hidden={!curVisible}
               clickable={card.playable || !curVisible}
+              isPlayerCard
             />
           {/each}
           <Button

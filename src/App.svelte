@@ -8,7 +8,7 @@
 
   let gameOn = false;
   let startingMoney = STARTING_MONEY;
-  let allowNegative = false;
+  let endlessMode = false;
 
   $: moneyError = startingMoney < 1;
   $: canCreate =
@@ -48,7 +48,7 @@
 
 <main style={`--players-count: ${players.length}`}>
   {#if gameOn}
-    <Game bind:players bind:gameOn {allowNegative} />
+    <Game bind:players bind:gameOn {endlessMode} />
   {:else}
     <section class="create-game">
       <h1>Create Game</h1>
@@ -60,9 +60,8 @@
       />
       <HelperLine>{moneyError ? 'Should be more than 1' : ' '}</HelperLine>
       <div>
-        Allow players with 0 or less money to play in a new draw (endless
-        mode?):
-        <Switch bind:checked={allowNegative} />
+        Allow players with 0 or less money to play in a new draw (endless mode)?
+        <Switch bind:checked={endlessMode} />
       </div>
       <h2>Players</h2>
       {#each players as player, idx}

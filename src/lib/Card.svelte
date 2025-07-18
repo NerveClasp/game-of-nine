@@ -4,6 +4,7 @@
   export let hidden = false;
   export let clickable = false;
   export let card: CardType | undefined = undefined;
+  export let isPlayerCard = false;
 </script>
 
 <div
@@ -12,6 +13,7 @@
   class:inactive={card.inactive}
   class:playable={card.playable}
   class:clickable
+  class:player-card={isPlayerCard}
   on:click
 >
   {#if !hidden && card}
@@ -69,15 +71,21 @@
   }
 
   .inactive {
-    opacity: 0.5;
+    opacity: 0.2;
+  }
+
+  .player-card {
+    opacity: 0.6;
   }
 
   .playable {
     border-color: red;
+    opacity: 0.5;
   }
 
   .clickable {
     cursor: pointer;
+    opacity: 1;
   }
 
   .❤,
