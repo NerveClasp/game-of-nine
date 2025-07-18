@@ -60,7 +60,8 @@
       />
       <HelperLine>{moneyError ? 'Should be more than 1' : ' '}</HelperLine>
       <div>
-        Allow players with 0 or less matches to play in a new draw:
+        Allow players with 0 or less money to play in a new draw (endless
+        mode?):
         <Switch bind:checked={allowNegative} />
       </div>
       <h2>Players</h2>
